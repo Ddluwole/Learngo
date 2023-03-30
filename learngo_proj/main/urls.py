@@ -1,11 +1,23 @@
 from django.urls import path
-from .views import TeacherList, TeacherDetail, teacher_login, teacher_change_password, student_change_password, CourseCategoryList, CourseList, TeacherCourseList, ChapterList, CourseChapterList, TeacherCourseDetail, ChapterDetail, StudentList, StudentDetail, student_login, WeeklytaskList, StudentWeeklytaskList,  NotificationList
+from .views import TeacherList, TeacherDetail, teacher_login, teacher_change_password, student_change_password, CourseCategoryList, CourseList, TeacherCourseList, ChapterList, CourseChapterList, TeacherCourseDetail, ChapterDetail, StudentList, StudentDetail, student_login, WeeklytaskList, StudentWeeklytaskList,  NotificationList,TeacherRegisterView, student_register, TeacherVerifyEmail, TeacherLoginView, PasswordTokenCheckAPI, TeacherPasswordResetView, SetNewPasswordAPIView, LogoutAPIView
 
 urlpatterns = [
-    path('teacher/', TeacherList.as_view()),
+    path('teacher-list/', TeacherList.as_view()),
+    path('teacher-register/', TeacherRegisterView.as_view()),
+    path('verify-email/',TeacherVerifyEmail.as_view(), name='verify-email'),
+    path('teacher-login/', TeacherLoginView.as_view()),
+    path('logout/', LogoutAPIView.as_view()),
+    path('request-reset-password/', TeacherPasswordResetView.as_view(), name='request-reset-email'),
+    path('password-reset/<uidb64>/<token>/', PasswordTokenCheckAPI.as_view(), name='password-reset-confirm'), 
+    path('password-reset-complete/', SetNewPasswordAPIView.as_view(), name='password-reset-complete'),
+
+    path('student-register/', student_register),    
     path('teacher/<int:pk>/', TeacherDetail.as_view()),
-    path('teacher-login/', teacher_login),
+     # Teacher Course
+    path('teacher-courses/<int:teacher_id>/', TeacherCourseList.as_view()),
+    # path('teacher-login/', teacher_login),
     path('teacher/change-password/<int:teacher_id>/', teacher_change_password),
+    
 
     #category
     path('category/', CourseCategoryList.as_view()),
@@ -13,8 +25,7 @@ urlpatterns = [
     # course
     path('course/', CourseList.as_view()),
 
-    # Teacher Course
-    path('teacher-courses/<int:teacher_id>/', TeacherCourseList.as_view()),
+   
 
     # Chapter
     path('chapter/', ChapterList.as_view()),

@@ -1,25 +1,53 @@
 from django.db import models
-from django.core import serializers
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
 
 # Create your models here.
 class Teacher(models.Model):
-    full_name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100)
+    first_name = models.CharField(max_length=100, null=True)
+    last_name = models.CharField(max_length=100, null=True)
+    email = models.EmailField(max_length=100, unique=True)
     password = models.CharField(max_length=100)
-    phone_no = models.CharField(max_length=100)
-    bio = models.TextField(default='No bio')
+    phone_no = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now=True)
-    updated_at = models.DateTimeField(auto_now=True)
-    skills = models.TextField(default='No skills')
+    updated_at = models.DateTimeField(auto_now=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pictures', null=True, blank=True)
+    verify_status = models.BooleanField(default=False)
+    last_login = models.DateTimeField(_("last login"), blank=True, null=True)
 
 
     class Meta:
         verbose_name_plural = '1. Teachers'
 
     def __str__(self):
-        return self.full_name
+        return self.email
+    
+    def set_password(self, password):
+        self.password = password
+        self.save()
+        return password
+    
+    def check_password(self, password):
+        return self.password == password
+    
+    def tokens(self):
+        refresh = RefreshToken.for_user(self)
+        return {
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        }
+    
+    @classmethod
+    def get_email_field_name(cls):
+        try:
+            return cls.EMAIL_FIELD
+        except AttributeError:
+            return "email"
+    
 
+    
 #probably not useful now
 class CourseCategory(models.Model):
     title = models.CharField(max_length=100)
@@ -62,25 +90,30 @@ class Chapter(models.Model):
     def __str__(self):
         return self.title
 
+
 #    
 
 class Student(models.Model):
-    full_name = models.CharField(max_length=100)
-    email = models.EmailField(max_length=100)
+    first_name = models.CharField(max_length=100, null=True)
+    last_name = models.CharField(max_length=100, null=True)
+    email = models.EmailField(max_length=100, unique=True)
     password = models.CharField(max_length=100)
-    username= models.CharField(max_length=100)
-    phone_no = models.CharField(max_length=100)
-    bio = models.TextField(default='No bio')
+    phone_no = models.CharField(max_length=100, unique=True)
     created_at = models.DateTimeField(auto_now=True)
     updated_at = models.DateTimeField(auto_now=True)
     profile_picture = models.ImageField(upload_to='profile_pictures', null=True, blank=True)
-    # interested_category = models.ManyToManyField(CourseCategory)
+    verify_status = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = '5. Students'
 
     def __str__(self):
-        return self.full_name
+        return self.email
+    
+    def set_password(self, password):
+        self.password = password
+        self.save()
+        return password    
     
     def completed_tasks(self):
         return self.Weeklytask_set.filter(student_status=True).count()

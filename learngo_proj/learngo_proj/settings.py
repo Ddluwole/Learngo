@@ -45,7 +45,9 @@ INSTALLED_APPS = [
      'rest_framework',
      'rest_framework.authtoken',
      'main',
-
+     'rest_framework_simplejwt',
+     'drf_yasg', 
+     'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
@@ -99,6 +101,13 @@ DATABASES = {
         'PASSWORD':'',
         'HOST':'localhost',
         'PORT':'3308',
+        "OPTIONS": {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES', innodb_strict_mode=1",
+            'charset': 'utf8mb4',
+            "autocommit": True,
+        }
+        # 'OPTIONS': { 'init_command': 'SET storage_engine=INNODB;' }
+
         
     }}
 
@@ -121,12 +130,25 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': [
+#         'rest_framework.authentication.TokenAuthentication',
+#     ]
+# }
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-    ]
+        'rest_framework_simplejwt.authentication.JWTAuthentication',    
+    ],
+    'NON_FIELD_ERRORS_KEY':'error'
+    
+        
 }
 
+# #Authentication backends
+# AUTHENTICATION_BACKENDS = (
+#         'django.contrib.auth.backends.ModelBackend',
+#     )
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -155,3 +177,10 @@ CORS_ALLOW_ALL_ORIGINS = True
 # ]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
